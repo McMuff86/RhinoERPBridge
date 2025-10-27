@@ -44,6 +44,7 @@
   <ItemGroup>
     <EmbeddedResource Include="EmbeddedResources\plugin-utility.ico" />
     <EmbeddedResource Include="EmbeddedResources\test-articles.json" />
+    <EmbeddedResource Include="EmbeddedResources\material-groups.json" />
   </ItemGroup>
   
   <Target Name="BuildYakPackage" AfterTargets="DispatchToInnerBuilds">

@@ -65,3 +65,4 @@ C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net7.0\runtimes\win-x
 C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net7.0\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net7.0\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
 C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net7.0\System.Data.Odbc.dll
+C:\Users\adrian.muff\source\repos\RhinoERPBridge\obj\Debug\net7.0\RhinoERPBridge.sourcelink.json

@@ -17,6 +17,7 @@ namespace RhinoERPBridge.UI
         private readonly Button _searchButton;
         private readonly Label _statusLabel;
         private readonly GridView _grid;
+        private readonly CheckBox _showAllColumns;
         private IArticleRepository _repo;
         private readonly Button _settingsButton;
 
@@ -30,6 +31,7 @@ namespace RhinoERPBridge.UI
             _searchButton = new Button { Text = "Search" };
             _statusLabel = new Label { Text = "Ready", TextColor = Colors.Gray };
             _settingsButton = new Button { Text = "DB Settings..." };
+            _showAllColumns = new CheckBox { Text = "Show all columns" };
 
             _grid = BuildGrid();
 
@@ -43,6 +45,7 @@ namespace RhinoERPBridge.UI
             layout.EndHorizontal();
 
             layout.AddRow(_statusLabel);
+            layout.AddRow(_showAllColumns);
             layout.Add(_grid, yscale: true);
 
             Content = layout;
@@ -60,6 +63,7 @@ namespace RhinoERPBridge.UI
             }
 
             _settingsButton.Click += (s, e) => Rhino.UI.Panels.OpenPanel(DbSettingsPanel.PanelGuid);
+            _showAllColumns.CheckedChanged += (s, e) => ApplySearch();
         }
 
         private IArticleRepository CreateRepository()
@@ -99,9 +103,64 @@ namespace RhinoERPBridge.UI
         private void ApplySearch()
         {
             var term = _searchBox.Text ?? string.Empty;
+            if (_showAllColumns.Checked == true)
+            {
+                TryBindDynamic(term);
+                return;
+            }
             var results = _repo.Search(term);
             _statusLabel.Text = $"{results.Count} results";
             BindArticles(results);
+        }
+
+        private void TryBindDynamic(string term)
+        {
+            try
+            {
+                var settings = RhinoERPBridge.Services.SettingsService.Load();
+                if (settings == null || !settings.IsConfigured || string.IsNullOrWhiteSpace(settings.ArticlesTable))
+                {
+                    _statusLabel.Text = "DB Settings not configured";
+                    _statusLabel.TextColor = Colors.IndianRed;
+                    return;
+                }
+
+                var data = RhinoERPBridge.Data.DynamicSqlHelper.QueryTop(settings, term);
+                BuildColumnsForDynamic(data);
+                _grid.DataStore = data.Rows;
+                _statusLabel.Text = $"{data.Rows.Count} rows (dynamic)";
+                _statusLabel.TextColor = Colors.Gray;
+            }
+            catch (System.Exception ex)
+            {
+                _statusLabel.Text = ex.Message;
+                _statusLabel.TextColor = Colors.IndianRed;
+            }
+        }
+
+        private void BuildColumnsForDynamic(RhinoERPBridge.Data.DynamicResult data)
+        {
+            _grid.Columns.Clear();
+            foreach (var col in data.Columns)
+            {
+                _grid.Columns.Add(new GridColumn
+                {
+                    HeaderText = col,
+                    DataCell = new TextBoxCell { Binding = GetDictBinding(col) },
+                    Width = 150
+                });
+            }
+        }
+
+        private static IIndirectBinding<string> GetDictBinding(string column)
+        {
+            return Binding.Delegate<System.Collections.Generic.Dictionary<string, object>, string>(row =>
+            {
+                object value;
+                if (row != null && row.TryGetValue(column, out value) && value != null)
+                    return value.ToString();
+                return null;
+            }, null);
         }
 
         private void BindArticles(IReadOnlyList<Article> items)

@@ -52,7 +52,12 @@ ORDER BY {s.ColName};";
                         dp.Add("p3", like);
                         dp.Add("p4", like);
                         dp.Add("p5", like);
-                        var results = conn.Query<Article>(sql, dp, commandTimeout: 15);
+                        var results = conn.Query<Article>(sql, dp, commandTimeout: 15)
+                            .Select(a =>
+                            {
+                                a.Category = RhinoERPBridge.Services.MaterialGroupService.TryResolve(a.Category);
+                                return a;
+                            });
                         return results.AsList();
                     }
                 }

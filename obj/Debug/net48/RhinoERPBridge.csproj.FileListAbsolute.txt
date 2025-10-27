@@ -51,3 +51,4 @@ C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net48\ru\Microsoft.Da
 C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net48\zh-Hans\Microsoft.Data.SqlClient.resources.dll
 C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net48\zh-Hant\Microsoft.Data.SqlClient.resources.dll
 C:\Users\adrian.muff\source\repos\RhinoERPBridge\bin\Debug\net48\System.Data.SqlClient.dll
+C:\Users\adrian.muff\source\repos\RhinoERPBridge\obj\Debug\net48\RhinoERPBridge.sourcelink.json

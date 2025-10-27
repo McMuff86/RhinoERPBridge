@@ -1,6 +1,6 @@
 ---
 name: RhinoERPBridge
-version: 1.0
+version: 1.0+41ab9a9819f01cc022e27d249335c9507e911ebc
 authors:
 - Rhino ERP Bridge
 description: Description of RhinoERPBridge
