@@ -27,7 +27,7 @@ namespace RhinoERPBridge.UI
 
         // Article mapping UI
         private readonly TextBox _tbl = new TextBox();
-        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM" } };
+        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM", "dbo.PRO_STAMM" } };
         private readonly TextBox _colSku = new TextBox();
         private readonly TextBox _colName = new TextBox();
         private readonly TextBox _colDesc = new TextBox();
@@ -98,6 +98,10 @@ namespace RhinoERPBridge.UI
                     {
                         ApplyAdrStammDefaults();
                     }
+                    else if (val.Equals("dbo.PRO_STAMM", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplyProStammDefaults();
+                    }
                     else if (val.Equals("dbo.PROD_DEFINITION", StringComparison.OrdinalIgnoreCase))
                     {
                         ApplyProdDefinitionDefaults();
@@ -131,6 +135,20 @@ namespace RhinoERPBridge.UI
             _colStock.Text = "ADR_ID";             // Platzhalter numerisch
             _colCategory.Text = "BRANCHE";         // Branche als Kategorie
             _status.Text = "Applied ADR_STAMM defaults. Don’t forget to Save.";
+            _status.TextColor = Colors.DarkGoldenrod;
+        }
+
+        private void ApplyProStammDefaults()
+        {
+            _tbl.Text = "dbo.PRO_STAMM";
+            _colSku.Text = "PROJEKT_ID";          // Projekt-ID als Identifier
+            _colName.Text = "PROJEKTBEZ";         // Objekt/Bezeichnung
+            _colDesc.Text = "VERMERK";            // Vermerk (Memo)
+            _colUnit.Text = "TERMIN";             // Liefertermin (String)
+            _colPrice.Text = "SUMME_AUF";         // Auftragssumme
+            _colStock.Text = "SUMME_ANG";         // Angebotssumme (Platzhalter)
+            _colCategory.Text = "PRO_STATUS_ID";  // Projektstatus als Kategorie
+            _status.Text = "Applied PRO_STAMM defaults. Don’t forget to Save.";
             _status.TextColor = Colors.DarkGoldenrod;
         }
 
