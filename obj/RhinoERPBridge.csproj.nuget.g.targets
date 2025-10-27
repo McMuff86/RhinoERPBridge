@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Condition=" '$(TargetFramework)' == 'net48' AND '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)rhinocommon\8.0.23304.9001\build\net48\RhinoCommon.targets" Condition="Exists('$(NuGetPackageRoot)rhinocommon\8.0.23304.9001\build\net48\RhinoCommon.targets')" />
+    <Import Project="$(NuGetPackageRoot)microsoft.data.sqlclient.sni\5.2.0\buildTransitive\net462\Microsoft.Data.SqlClient.SNI.targets" Condition="Exists('$(NuGetPackageRoot)microsoft.data.sqlclient.sni\5.2.0\buildTransitive\net462\Microsoft.Data.SqlClient.SNI.targets')" />
+  </ImportGroup>
+  <ImportGroup Condition=" '$(TargetFramework)' == 'net7.0' AND '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)system.data.odbc\9.0.0\buildTransitive\netcoreapp2.0\System.Data.Odbc.targets" Condition="Exists('$(NuGetPackageRoot)system.data.odbc\9.0.0\buildTransitive\netcoreapp2.0\System.Data.Odbc.targets')" />
+    <Import Project="$(NuGetPackageRoot)rhinocommon\8.0.23304.9001\build\net48\RhinoCommon.targets" Condition="Exists('$(NuGetPackageRoot)rhinocommon\8.0.23304.9001\build\net48\RhinoCommon.targets')" />
+  </ImportGroup>
+</Project>

@@ -1,0 +1,24 @@
+[
+  {"id":1,"sku":"WD-PLY-18","name":"Plywood Sheet 18mm","description":"Birch plywood, 2500x1250x18mm","unit":"sheet","price":65.50,"stock":24,"category":"Boards"},
+  {"id":2,"sku":"WD-MDF-16","name":"MDF Board 16mm","description":"MDF board, 2800x2070x16mm","unit":"sheet","price":42.30,"stock":35,"category":"Boards"},
+  {"id":3,"sku":"WD-MEL-19W","name":"Melamine Board White 19mm","description":"Particle board, melamine white, 2800x2070x19mm","unit":"sheet","price":38.90,"stock":40,"category":"Boards"},
+  {"id":4,"sku":"EDGE-ABS-22W","name":"ABS Edge 22x2 White","description":"ABS edging tape, 22mm x 2mm, white","unit":"roll","price":9.80,"stock":120,"category":"Edging"},
+  {"id":5,"sku":"GLUE-D3-750","name":"Wood Glue D3 750ml","description":"PVAC wood glue, D3 waterproof","unit":"bottle","price":6.20,"stock":80,"category":"Adhesives"},
+  {"id":6,"sku":"SCR-CONF-7x50","name":"Confirmat Screw 7x50","description":"Confirmat screw for particleboard","unit":"box100","price":8.90,"stock":55,"category":"Fasteners"},
+  {"id":7,"sku":"SCR-WD-4x40","name":"Wood Screw 4x40","description":"Countersunk wood screw, Pozidriv","unit":"box200","price":7.50,"stock":60,"category":"Fasteners"},
+  {"id":8,"sku":"HDL-AL-160","name":"Handle Aluminum 160mm","description":"Anodized aluminum handle, 160mm CC","unit":"piece","price":4.80,"stock":75,"category":"Hardware"},
+  {"id":9,"sku":"HING-CLIP-110","name":"Hinge Clip-on 110°","description":"Concealed hinge, soft-close, full overlay","unit":"pair","price":3.40,"stock":150,"category":"Hardware"},
+  {"id":10,"sku":"DRV-SL-500","name":"Drawer Slide 500mm","description":"Full-extension ball bearing slide, 45kg","unit":"pair","price":11.90,"stock":90,"category":"Hardware"},
+  {"id":11,"sku":"DOW-8x40","name":"Beech Dowel 8x40","description":"Grooved beech dowel","unit":"bag100","price":3.10,"stock":100,"category":"Joinery"},
+  {"id":12,"sku":"SAND-P120","name":"Sandpaper P120","description":"Aluminum oxide, 230x280mm","unit":"pack10","price":2.90,"stock":70,"category":"Abrasives"},
+  {"id":13,"sku":"LACQ-CLEAR-1L","name":"Clear Lacquer 1L","description":"PU clear lacquer, satin","unit":"can","price":14.50,"stock":30,"category":"Finishes"},
+  {"id":14,"sku":"SHELF-PIN-5","name":"Shelf Support Pin 5mm","description":"Nickel plated shelf pin","unit":"bag50","price":1.80,"stock":140,"category":"Hardware"},
+  {"id":15,"sku":"CAM-CON-15","name":"Cam Connector 15mm","description":"Cam and dowel connector set","unit":"bag50","price":5.60,"stock":65,"category":"Fasteners"},
+  {"id":16,"sku":"DRL-WD-5","name":"Wood Drill Bit 5mm","description":"Brad point wood drill bit","unit":"piece","price":2.20,"stock":45,"category":"Tools"},
+  {"id":17,"sku":"CNTR-SINK-10","name":"Countersink Bit 10mm","description":"Countersink with pilot","unit":"piece","price":6.80,"stock":25,"category":"Tools"},
+  {"id":18,"sku":"WD-BCH-20","name":"Beech Board 20mm","description":"Solid beech, 1000x300x20mm","unit":"piece","price":19.90,"stock":18,"category":"Boards"},
+  {"id":19,"sku":"WD-OAK-20","name":"Oak Board 20mm","description":"Solid oak, 1000x300x20mm","unit":"piece","price":24.90,"stock":12,"category":"Boards"},
+  {"id":20,"sku":"AL-PROF-2020","name":"Aluminum Profile 20x20","description":"Anodized profile, 1m","unit":"piece","price":7.90,"stock":50,"category":"Profiles"}
+]
+
+
