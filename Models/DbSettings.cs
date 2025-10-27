@@ -26,6 +26,10 @@ namespace RhinoERPBridge.Models
         public string ColStock { get; set; } = "Stock";
         public string ColCategory { get; set; } = "Category";
 
+        // Alternate table presets (simple list for UI dropdown)
+        public string AlternateTable1 { get; set; } = "dbo.PROD_DEFINITION";
+        public string AlternateTable2 { get; set; } = "dbo.ADR_STAMM";
+
         // Derived/utility flags
         public bool IsConfigured => !string.IsNullOrWhiteSpace(Server);
     }

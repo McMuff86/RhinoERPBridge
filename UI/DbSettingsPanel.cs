@@ -27,6 +27,7 @@ namespace RhinoERPBridge.UI
 
         // Article mapping UI
         private readonly TextBox _tbl = new TextBox();
+        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM" } };
         private readonly TextBox _colSku = new TextBox();
         private readonly TextBox _colName = new TextBox();
         private readonly TextBox _colDesc = new TextBox();
@@ -74,7 +75,7 @@ namespace RhinoERPBridge.UI
             layout.AddRow(_encrypt);
             layout.AddRow(_trust);
             layout.AddSeparateRow(new Label { Text = "Articles Mapping", Font = SystemFonts.Bold() });
-            layout.AddRow(new Label { Text = "Table" }, _tbl);
+            layout.AddRow(new Label { Text = "Table" }, _tbl, _tablePresets);
             layout.AddRow(new Label { Text = "SKU" }, _colSku);
             layout.AddRow(new Label { Text = "Name" }, _colName);
             layout.AddRow(new Label { Text = "Description" }, _colDesc);
@@ -86,6 +87,23 @@ namespace RhinoERPBridge.UI
             layout.AddRow(btnTest, btnSave);
             layout.AddRow(_status);
             Content = layout;
+
+            _tablePresets.SelectedIndexChanged += (s3, e3) =>
+            {
+                var val = _tablePresets.SelectedValue as string;
+                if (!string.IsNullOrWhiteSpace(val))
+                {
+                    _tbl.Text = val;
+                    if (val.Equals("dbo.ADR_STAMM", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplyAdrStammDefaults();
+                    }
+                    else if (val.Equals("dbo.PROD_DEFINITION", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplyProdDefinitionDefaults();
+                    }
+                }
+            };
         }
 
         private void ApplyProdDefinitionDefaults()
@@ -99,6 +117,20 @@ namespace RhinoERPBridge.UI
             _colStock.Text = "M_MINDESTBESTAND"; // Minimalbestand als Beispiel (oder Lagerbestandstabelle)
             _colCategory.Text = "M_MATGRUPPE_ID"; // Materialgruppe als Kategorie
             _status.Text = "Applied PROD_DEFINITION defaults. Don’t forget to Save.";
+            _status.TextColor = Colors.DarkGoldenrod;
+        }
+
+        private void ApplyAdrStammDefaults()
+        {
+            _tbl.Text = "dbo.ADR_STAMM";
+            _colSku.Text = "ADR_ID";              // primary key as identifier
+            _colName.Text = "KURZBEZEICHNUNG";     // Bezeichnung
+            _colDesc.Text = "ADRESS_ANREDE";       // kurze Beschreibung
+            _colUnit.Text = "LAND";                // Platzhalter (nicht relevant)
+            _colPrice.Text = "ADR_ID";             // Platzhalter numerisch
+            _colStock.Text = "ADR_ID";             // Platzhalter numerisch
+            _colCategory.Text = "BRANCHE";         // Branche als Kategorie
+            _status.Text = "Applied ADR_STAMM defaults. Don’t forget to Save.";
             _status.TextColor = Colors.DarkGoldenrod;
         }
 

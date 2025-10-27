@@ -20,6 +20,7 @@ namespace RhinoERPBridge.UI
         private readonly CheckBox _showAllColumns;
         private IArticleRepository _repo;
         private readonly Button _settingsButton;
+        private readonly Button _normalViewButton;
 
         public ErpSearchPanel()
         {
@@ -32,6 +33,7 @@ namespace RhinoERPBridge.UI
             _statusLabel = new Label { Text = "Ready", TextColor = Colors.Gray };
             _settingsButton = new Button { Text = "DB Settings..." };
             _showAllColumns = new CheckBox { Text = "Show all columns" };
+            _normalViewButton = new Button { Text = "Normal view" };
 
             _grid = BuildGrid();
 
@@ -42,6 +44,7 @@ namespace RhinoERPBridge.UI
             layout.Add(_searchBox, xscale: true);
             layout.Add(_searchButton);
             layout.Add(_settingsButton);
+            layout.Add(_normalViewButton);
             layout.EndHorizontal();
 
             layout.AddRow(_statusLabel);
@@ -64,6 +67,7 @@ namespace RhinoERPBridge.UI
 
             _settingsButton.Click += (s, e) => Rhino.UI.Panels.OpenPanel(DbSettingsPanel.PanelGuid);
             _showAllColumns.CheckedChanged += (s, e) => ApplySearch();
+            _normalViewButton.Click += (s, e) => { _showAllColumns.Checked = false; ApplySearch(); };
         }
 
         private IArticleRepository CreateRepository()
@@ -143,12 +147,15 @@ namespace RhinoERPBridge.UI
             _grid.Columns.Clear();
             foreach (var col in data.Columns)
             {
-                _grid.Columns.Add(new GridColumn
+                var column = new GridColumn
                 {
                     HeaderText = col,
-                    DataCell = new TextBoxCell { Binding = GetDictBinding(col) },
-                    Width = 150
-                });
+                    DataCell = new TextBoxCell { Binding = GetDictBinding(col) }
+                };
+                // auto width based on header length (approximate)
+                var width = Math.Max(80, Math.Min(400, (col?.Length ?? 0) * 8 + 24));
+                column.Width = width;
+                _grid.Columns.Add(column);
             }
         }
 
