@@ -27,7 +27,7 @@ namespace RhinoERPBridge.UI
 
         // Article mapping UI
         private readonly TextBox _tbl = new TextBox();
-        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM", "dbo.PRO_STAMM" } };
+        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM", "dbo.PRO_STAMM", "dbo.MAWI_BESTELLUNG" } };
         private readonly TextBox _colSku = new TextBox();
         private readonly TextBox _colName = new TextBox();
         private readonly TextBox _colDesc = new TextBox();
@@ -102,6 +102,10 @@ namespace RhinoERPBridge.UI
                     {
                         ApplyProStammDefaults();
                     }
+                    else if (val.Equals("dbo.MAWI_BESTELLUNG", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplyMawiBestellungDefaults();
+                    }
                     else if (val.Equals("dbo.PROD_DEFINITION", StringComparison.OrdinalIgnoreCase))
                     {
                         ApplyProdDefinitionDefaults();
@@ -149,6 +153,20 @@ namespace RhinoERPBridge.UI
             _colStock.Text = "SUMME_ANG";         // Angebotssumme (Platzhalter)
             _colCategory.Text = "PRO_STATUS_ID";  // Projektstatus als Kategorie
             _status.Text = "Applied PRO_STAMM defaults. Don’t forget to Save.";
+            _status.TextColor = Colors.DarkGoldenrod;
+        }
+
+        private void ApplyMawiBestellungDefaults()
+        {
+            _tbl.Text = "dbo.MAWI_BESTELLUNG";
+            _colSku.Text = "BESTELL_ID";                 // eindeutige ID
+            _colName.Text = "BESTELL_NUMMER";             // Bestell-Nr.
+            _colDesc.Text = "LIEFERVERMERK";              // Beschreibung/Memo
+            _colUnit.Text = "WAEHRUNGS_ID";               // Platzhalter
+            _colPrice.Text = "BETRAG_TOTAL";              // Total inkl. MwSt abz. Skonto
+            _colStock.Text = "WARENWERT";                 // Warenwert (Platzhalter)
+            _colCategory.Text = "BESTELL_STATUS_ID";      // Bestellstatus als Kategorie
+            _status.Text = "Applied MAWI_BESTELLUNG defaults. Don’t forget to Save.";
             _status.TextColor = Colors.DarkGoldenrod;
         }
 
