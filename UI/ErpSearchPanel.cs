@@ -26,7 +26,7 @@ namespace RhinoERPBridge.UI
         {
             var layout = new DynamicLayout { Spacing = new Size(6, 6), Padding = new Padding(8) };
 
-            layout.Add(new Label { Text = "ERP Article Search", Font = SystemFonts.Bold(SystemFonts.Default().Size + 1) });
+            layout.AddRow(new Label { Text = "ERP Article Search", Font = SystemFonts.Bold(SystemFonts.Default().Size + 1) });
 
             _searchBox = new TextBox { PlaceholderText = "Search term..." };
             _searchButton = new Button { Text = "Search" };
@@ -40,16 +40,21 @@ namespace RhinoERPBridge.UI
             _searchButton.Click += (s, e) => ApplySearch();
             _searchBox.KeyDown += (s, e) => { if (e.Key == Keys.Enter) ApplySearch(); };
 
-            layout.BeginHorizontal();
+            // Search term on its own row (full width)
             layout.Add(_searchBox, xscale: true);
-            layout.Add(_searchButton);
-            layout.Add(_settingsButton);
-            layout.Add(_normalViewButton);
-            layout.EndHorizontal();
+            // Action buttons in one row sharing the width (use nested TableLayout so main layout stays single-column)
+            var buttonsRow = new TableLayout(
+                new TableRow(
+                    new TableCell(_searchButton, true),
+                    new TableCell(_settingsButton, true),
+                    new TableCell(_normalViewButton, true)
+                )
+            );
+            layout.AddRow(buttonsRow);
 
             layout.AddRow(_statusLabel);
             layout.AddRow(_showAllColumns);
-            layout.Add(_grid, yscale: true);
+            layout.Add(_grid, xscale: true, yscale: true);
 
             Content = layout;
 
