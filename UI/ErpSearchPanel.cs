@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using RhinoERPBridge.Data;
 using RhinoERPBridge.Models;
+using Rhino;
+using Rhino.Input.Custom;
+using Rhino.DocObjects;
 
 namespace RhinoERPBridge.UI
 {
@@ -51,7 +54,39 @@ namespace RhinoERPBridge.UI
             miCopyValueWithHeader.Click += (s, e) => CopySelectedValue(withHeader: true);
             var miCopyRowWithHeader = new ButtonMenuItem { Text = "Copy row with header" };
             miCopyRowWithHeader.Click += (s, e) => CopySelectedRow(withHeader: true);
-            _grid.ContextMenu = new ContextMenu(miCopyValue, miCopyValueWithHeader, miCopyRow, miCopyRowWithHeader);
+            var miExportValue = new ButtonMenuItem { Text = "Export value to Rhino object" };
+            miExportValue.Click += (s, e) => ExportSelectedValueToRhino();
+            var miExportRow = new ButtonMenuItem { Text = "Export row to Rhino object" };
+            miExportRow.Click += (s, e) => ExportSelectedRowToRhino();
+
+            // Column chooser submenus for precise selection regardless of horizontal scroll
+            var chooseValueMenu = new ButtonMenuItem { Text = "Copy value (choose column)" };
+            var chooseExportValueMenu = new ButtonMenuItem { Text = "Export value (choose column)" };
+            _grid.ContextMenu = new ContextMenu(
+                miCopyValue,
+                miCopyValueWithHeader,
+                chooseValueMenu,
+                miCopyRow,
+                miCopyRowWithHeader,
+                new SeparatorMenuItem(),
+                miExportValue,
+                miExportRow,
+                chooseExportValueMenu
+            );
+
+            _grid.ContextMenu.Opening += (s, e) =>
+            {
+                // rebuild column chooser items
+                chooseValueMenu.Items.Clear();
+                chooseExportValueMenu.Items.Clear();
+                for (int i = 0; i < _grid.Columns.Count; i++)
+                {
+                    var colIndex = i; // capture
+                    var header = _grid.Columns[i].HeaderText ?? $"Col {i + 1}";
+                    chooseValueMenu.Items.Add(new ButtonMenuItem { Text = header, Command = new Command((_, __) => CopyValueByColumn(colIndex, withHeader: false)) });
+                    chooseExportValueMenu.Items.Add(new ButtonMenuItem { Text = header, Command = new Command((_, __) => ExportValueByColumnToRhino(colIndex)) });
+                }
+            };
             _grid.MouseDown += (s, e) =>
             {
                 if (e.Buttons == MouseButtons.Alternate)
@@ -298,6 +333,96 @@ namespace RhinoERPBridge.UI
                 acc += w;
             }
             return _grid.Columns.Count - 1;
+        }
+
+        private void CopyValueByColumn(int colIndex, bool withHeader)
+        {
+            _lastContextColumnIndex = colIndex;
+            CopySelectedValue(withHeader);
+        }
+
+        private void ExportValueByColumnToRhino(int colIndex)
+        {
+            _lastContextColumnIndex = colIndex;
+            ExportSelectedValueToRhino();
+        }
+
+        private void ExportSelectedValueToRhino()
+        {
+            var item = _grid.SelectedItem;
+            if (item == null) return;
+            var doc = RhinoDoc.ActiveDoc;
+            if (doc == null) return;
+            var go = new GetObject();
+            go.SetCommandPrompt("Select object to attach user text");
+            go.GeometryFilter = ObjectType.AnyObject;
+            var res = go.Get();
+            if (go.CommandResult() != Rhino.Commands.Result.Success) return;
+            var obj = go.Object(0).Object();
+            if (obj == null) return;
+
+            var colIndex = _lastContextColumnIndex ?? 0;
+            string key;
+            string value;
+            if (item is Article a)
+            {
+                var cell = GetArticleCell(colIndex, a);
+                key = cell.header;
+                value = cell.val;
+            }
+            else if (item is Dictionary<string, object> d)
+            {
+                key = (_grid.Columns.Count > colIndex && colIndex >= 0) ? _grid.Columns[colIndex].HeaderText : "Value";
+                d.TryGetValue(key, out var v);
+                value = v?.ToString();
+            }
+            else
+            {
+                key = "Value";
+                value = item.ToString();
+            }
+
+            var attr = obj.Attributes.Duplicate();
+            attr.SetUserString(key, value ?? string.Empty);
+            doc.Objects.ModifyAttributes(obj.Id, attr, true);
+            doc.Views.Redraw();
+        }
+
+        private void ExportSelectedRowToRhino()
+        {
+            var item = _grid.SelectedItem;
+            if (item == null) return;
+            var doc = RhinoDoc.ActiveDoc;
+            if (doc == null) return;
+            var go = new GetObject();
+            go.SetCommandPrompt("Select object to attach user text (row)");
+            go.GeometryFilter = ObjectType.AnyObject;
+            var res = go.Get();
+            if (go.CommandResult() != Rhino.Commands.Result.Success) return;
+            var obj = go.Object(0).Object();
+            if (obj == null) return;
+
+            var attr = obj.Attributes.Duplicate();
+            if (item is Article a)
+            {
+                attr.SetUserString("SKU", a.Sku);
+                attr.SetUserString("Name", a.Name);
+                attr.SetUserString("Category", a.Category);
+                attr.SetUserString("Price", a.Price.ToString("F2"));
+                attr.SetUserString("Stock", a.Stock.ToString());
+            }
+            else if (item is Dictionary<string, object> d)
+            {
+                foreach (var col in _grid.Columns)
+                {
+                    var header = col.HeaderText ?? "";
+                    if (string.IsNullOrEmpty(header)) continue;
+                    if (d.TryGetValue(header, out var v) && v != null)
+                        attr.SetUserString(header, v.ToString());
+                }
+            }
+            doc.Objects.ModifyAttributes(obj.Id, attr, true);
+            doc.Views.Redraw();
         }
     }
 }
