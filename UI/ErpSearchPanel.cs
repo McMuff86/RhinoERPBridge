@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using Eto.Forms;
 using Eto.Drawing;
 using System.Collections.Generic;
+using System.Linq;
 using RhinoERPBridge.Data;
 using RhinoERPBridge.Models;
 
@@ -39,6 +40,13 @@ namespace RhinoERPBridge.UI
 
             _searchButton.Click += (s, e) => ApplySearch();
             _searchBox.KeyDown += (s, e) => { if (e.Key == Keys.Enter) ApplySearch(); };
+
+            // Context menu for copy actions
+            var miCopyValue = new ButtonMenuItem { Text = "Copy value" };
+            miCopyValue.Click += (s, e) => CopySelectedValue();
+            var miCopyRow = new ButtonMenuItem { Text = "Copy row" };
+            miCopyRow.Click += (s, e) => CopySelectedRow();
+            _grid.ContextMenu = new ContextMenu(miCopyValue, miCopyRow);
 
             // Search term on its own row (full width)
             layout.Add(_searchBox, xscale: true);
@@ -178,6 +186,71 @@ namespace RhinoERPBridge.UI
         private void BindArticles(IReadOnlyList<Article> items)
         {
             _grid.DataStore = items;
+        }
+
+        private void CopySelectedValue()
+        {
+            var text = GetSelectedValueText();
+            if (!string.IsNullOrEmpty(text))
+            {
+                var cb = new Clipboard();
+                cb.Text = text;
+            }
+        }
+
+        private void CopySelectedRow()
+        {
+            var text = GetSelectedRowText();
+            if (!string.IsNullOrEmpty(text))
+            {
+                var cb = new Clipboard();
+                cb.Text = text;
+            }
+        }
+
+        private string GetSelectedValueText()
+        {
+            var item = _grid.SelectedItem;
+            if (item == null) return null;
+            if (item is Article a)
+                return !string.IsNullOrWhiteSpace(a.Name) ? a.Name : a.Sku;
+            if (item is Dictionary<string, object> d)
+            {
+                var firstCol = _grid.Columns.Count > 0 ? _grid.Columns[0].HeaderText : null;
+                if (!string.IsNullOrEmpty(firstCol) && d.TryGetValue(firstCol, out var v) && v != null)
+                    return v.ToString();
+                var kv = d.FirstOrDefault();
+                return kv.Value?.ToString();
+            }
+            return item.ToString();
+        }
+
+        private string GetSelectedRowText()
+        {
+            var item = _grid.SelectedItem;
+            if (item == null) return null;
+            if (item is Article a)
+            {
+                var parts = new[]
+                {
+                    a.Sku,
+                    a.Name,
+                    a.Category,
+                    a.Price.ToString("F2"),
+                    a.Stock.ToString()
+                };
+                return string.Join("\t", parts);
+            }
+            if (item is Dictionary<string, object> d)
+            {
+                var values = _grid.Columns.Select(c =>
+                {
+                    if (d.TryGetValue(c.HeaderText, out var v) && v != null) return v.ToString();
+                    return string.Empty;
+                });
+                return string.Join("\t", values);
+            }
+            return item.ToString();
         }
     }
 }
