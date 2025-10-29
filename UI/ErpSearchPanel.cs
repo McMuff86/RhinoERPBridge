@@ -22,6 +22,7 @@ namespace RhinoERPBridge.UI
         private IArticleRepository _repo;
         private readonly Button _settingsButton;
         private readonly Button _normalViewButton;
+        private int? _lastContextColumnIndex;
 
         public ErpSearchPanel()
         {
@@ -46,7 +47,18 @@ namespace RhinoERPBridge.UI
             miCopyValue.Click += (s, e) => CopySelectedValue();
             var miCopyRow = new ButtonMenuItem { Text = "Copy row" };
             miCopyRow.Click += (s, e) => CopySelectedRow();
-            _grid.ContextMenu = new ContextMenu(miCopyValue, miCopyRow);
+            var miCopyValueWithHeader = new ButtonMenuItem { Text = "Copy value with header" };
+            miCopyValueWithHeader.Click += (s, e) => CopySelectedValue(withHeader: true);
+            var miCopyRowWithHeader = new ButtonMenuItem { Text = "Copy row with header" };
+            miCopyRowWithHeader.Click += (s, e) => CopySelectedRow(withHeader: true);
+            _grid.ContextMenu = new ContextMenu(miCopyValue, miCopyValueWithHeader, miCopyRow, miCopyRowWithHeader);
+            _grid.MouseDown += (s, e) =>
+            {
+                if (e.Buttons == MouseButtons.Alternate)
+                {
+                    _lastContextColumnIndex = EstimateColumnIndex(e.Location.X);
+                }
+            };
 
             // Search term on its own row (full width)
             layout.Add(_searchBox, xscale: true);
@@ -188,9 +200,9 @@ namespace RhinoERPBridge.UI
             _grid.DataStore = items;
         }
 
-        private void CopySelectedValue()
+        private void CopySelectedValue(bool withHeader = false)
         {
-            var text = GetSelectedValueText();
+            var text = GetSelectedValueText(withHeader);
             if (!string.IsNullOrEmpty(text))
             {
                 var cb = new Clipboard();
@@ -198,9 +210,9 @@ namespace RhinoERPBridge.UI
             }
         }
 
-        private void CopySelectedRow()
+        private void CopySelectedRow(bool withHeader = false)
         {
-            var text = GetSelectedRowText();
+            var text = GetSelectedRowText(withHeader);
             if (!string.IsNullOrEmpty(text))
             {
                 var cb = new Clipboard();
@@ -208,49 +220,84 @@ namespace RhinoERPBridge.UI
             }
         }
 
-        private string GetSelectedValueText()
+        private string GetSelectedValueText(bool withHeader)
         {
             var item = _grid.SelectedItem;
             if (item == null) return null;
+            var colIndex = _lastContextColumnIndex ?? 0;
             if (item is Article a)
-                return !string.IsNullOrWhiteSpace(a.Name) ? a.Name : a.Sku;
+            {
+                var (header, val) = GetArticleCell(colIndex, a);
+                return withHeader ? $"{header}\t{val}" : val;
+            }
             if (item is Dictionary<string, object> d)
             {
-                var firstCol = _grid.Columns.Count > 0 ? _grid.Columns[0].HeaderText : null;
-                if (!string.IsNullOrEmpty(firstCol) && d.TryGetValue(firstCol, out var v) && v != null)
-                    return v.ToString();
-                var kv = d.FirstOrDefault();
-                return kv.Value?.ToString();
+                var hdr = (_grid.Columns.Count > colIndex && colIndex >= 0) ? _grid.Columns[colIndex].HeaderText : null;
+                if (!string.IsNullOrEmpty(hdr) && d.TryGetValue(hdr, out var v) && v != null)
+                    return withHeader ? $"{hdr}\t{v}" : v.ToString();
+                return null;
             }
             return item.ToString();
         }
 
-        private string GetSelectedRowText()
+        private string GetSelectedRowText(bool withHeader)
         {
             var item = _grid.SelectedItem;
             if (item == null) return null;
             if (item is Article a)
             {
-                var parts = new[]
+                var cells = new (string header, string val)[]
                 {
-                    a.Sku,
-                    a.Name,
-                    a.Category,
-                    a.Price.ToString("F2"),
-                    a.Stock.ToString()
+                    ("SKU", a.Sku),
+                    ("Name", a.Name),
+                    ("Category", a.Category),
+                    ("Price", a.Price.ToString("F2")),
+                    ("Stock", a.Stock.ToString())
                 };
-                return string.Join("\t", parts);
+                return withHeader
+                    ? string.Join("\t", cells.Select(c => c.header)) + "\n" + string.Join("\t", cells.Select(c => c.val))
+                    : string.Join("\t", cells.Select(c => c.val));
             }
             if (item is Dictionary<string, object> d)
             {
+                var headers = _grid.Columns.Select(c => c.HeaderText);
                 var values = _grid.Columns.Select(c =>
                 {
                     if (d.TryGetValue(c.HeaderText, out var v) && v != null) return v.ToString();
                     return string.Empty;
                 });
-                return string.Join("\t", values);
+                return withHeader
+                    ? string.Join("\t", headers) + "\n" + string.Join("\t", values)
+                    : string.Join("\t", values);
             }
             return item.ToString();
+        }
+
+        private (string header, string val) GetArticleCell(int colIndex, Article a)
+        {
+            switch (colIndex)
+            {
+                case 0: return ("SKU", a.Sku);
+                case 1: return ("Name", a.Name);
+                case 2: return ("Category", a.Category);
+                case 3: return ("Price", a.Price.ToString("F2"));
+                case 4: return ("Stock", a.Stock.ToString());
+                default: return ("Name", a.Name);
+            }
+        }
+
+        private int? EstimateColumnIndex(float mouseX)
+        {
+            if (_grid.Columns.Count == 0) return 0;
+            float acc = 0;
+            for (int i = 0; i < _grid.Columns.Count; i++)
+            {
+                var w = _grid.Columns[i].Width > 0 ? _grid.Columns[i].Width : 120;
+                if (mouseX >= acc && mouseX < acc + w)
+                    return i;
+                acc += w;
+            }
+            return _grid.Columns.Count - 1;
         }
     }
 }
