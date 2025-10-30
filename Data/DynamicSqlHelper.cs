@@ -15,10 +15,11 @@ namespace RhinoERPBridge.Data
 
     public static class DynamicSqlHelper
     {
-        public static DynamicResult QueryTop(DbSettings s, string term)
+        public static DynamicResult QueryTop(DbSettings s, string term, int top)
         {
             var like = "%" + (term ?? string.Empty) + "%";
-            var sql = $"SELECT TOP (100) * FROM {s.ArticlesTable} WHERE (? = '' OR {s.ColName} LIKE ? OR {s.ColSku} LIKE ? OR {s.ColDescription} LIKE ? OR {s.ColCategory} LIKE ?) ORDER BY {s.ColName}";
+            var safeTop = Math.Max(1, Math.Min(top, 10000));
+            var sql = $"SELECT TOP ({safeTop}) * FROM {s.ArticlesTable} WHERE (? = '' OR {s.ColName} LIKE ? OR {s.ColSku} LIKE ? OR {s.ColDescription} LIKE ? OR {s.ColCategory} LIKE ?) ORDER BY {s.ColName}";
 
             var drivers = new[] { "{ODBC Driver 18 for SQL Server}", "{ODBC Driver 17 for SQL Server}", "{SQL Server}" };
             foreach (var driver in drivers)

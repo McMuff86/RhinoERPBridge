@@ -37,6 +37,7 @@ namespace RhinoERPBridge
             var icon = LoadEmbeddedIcon();
             Panels.RegisterPanel(this, typeof(ErpSearchPanel), "ERP Search", icon);
             Panels.RegisterPanel(this, typeof(DbSettingsPanel), "DB Settings", icon);
+            Panels.RegisterPanel(this, typeof(DsnSettingsPanel), "DSN Settings", icon);
             return Rhino.PlugIns.LoadReturnCode.Success;
         }
 

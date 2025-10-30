@@ -27,7 +27,7 @@ namespace RhinoERPBridge.UI
 
         // Article mapping UI
         private readonly TextBox _tbl = new TextBox();
-        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM", "dbo.PRO_STAMM", "dbo.MAWI_BESTELLUNG" } };
+        private readonly DropDown _tablePresets = new DropDown { DataStore = new[] { "dbo.PROD_DEFINITION", "dbo.ADR_STAMM", "dbo.PRO_STAMM", "dbo.MAWI_BESTELLUNG", "dbo.PRO_ANGEBOTE" } };
         private readonly TextBox _colSku = new TextBox();
         private readonly TextBox _colName = new TextBox();
         private readonly TextBox _colDesc = new TextBox();
@@ -55,26 +55,16 @@ namespace RhinoERPBridge.UI
             _colStock.Text = s.ColStock;
             _colCategory.Text = s.ColCategory;
 
-            _auth.SelectedIndexChanged += (s2, e2) => UpdateAuthVisibility();
-            UpdateAuthVisibility();
-
-            var btnTest = new Button { Text = "Test Connection" };
+            var btnDsn = new Button { Text = "Open DSN Settings…" };
             var btnSave = new Button { Text = "Save" };
             var btnDefaults = new Button { Text = "Use PROD_DEFINITION defaults" };
 
-            btnTest.Click += (s2, e2) => Test();
+            btnDsn.Click += (s2, e2) => Rhino.UI.Panels.OpenPanel(DsnSettingsPanel.PanelGuid);
             btnSave.Click += (s2, e2) => Save();
             btnDefaults.Click += (s2, e2) => ApplyProdDefinitionDefaults();
 
             var layout = new DynamicLayout { Spacing = new Size(6, 6), Padding = new Padding(8) };
-            layout.AddRow(new Label { Text = "Server" }, _server);
-            layout.AddRow(new Label { Text = "Database" }, _database);
-            layout.AddRow(new Label { Text = "Authentication" }, _auth);
-            layout.AddRow(new Label { Text = "Username" }, _username);
-            layout.AddRow(new Label { Text = "Password" }, _password);
-            layout.AddRow(_encrypt);
-            layout.AddRow(_trust);
-            layout.AddSeparateRow(new Label { Text = "Articles Mapping", Font = SystemFonts.Bold() });
+            layout.AddSeparateRow(new Label { Text = "Articles Mapping", Font = SystemFonts.Bold() }, null, btnDsn);
             layout.AddRow(new Label { Text = "Table" }, _tbl, _tablePresets);
             layout.AddRow(new Label { Text = "SKU" }, _colSku);
             layout.AddRow(new Label { Text = "Name" }, _colName);
@@ -84,7 +74,7 @@ namespace RhinoERPBridge.UI
             layout.AddRow(new Label { Text = "Stock" }, _colStock);
             layout.AddRow(new Label { Text = "Category" }, _colCategory);
             layout.AddRow(btnDefaults);
-            layout.AddRow(btnTest, btnSave);
+            layout.AddRow(btnSave);
             layout.AddRow(_status);
             Content = layout;
 
@@ -105,6 +95,10 @@ namespace RhinoERPBridge.UI
                     else if (val.Equals("dbo.MAWI_BESTELLUNG", StringComparison.OrdinalIgnoreCase))
                     {
                         ApplyMawiBestellungDefaults();
+                    }
+                    else if (val.Equals("dbo.PRO_ANGEBOTE", StringComparison.OrdinalIgnoreCase))
+                    {
+                        ApplyProAngeboteDefaults();
                     }
                     else if (val.Equals("dbo.PROD_DEFINITION", StringComparison.OrdinalIgnoreCase))
                     {
@@ -170,6 +164,20 @@ namespace RhinoERPBridge.UI
             _status.TextColor = Colors.DarkGoldenrod;
         }
 
+        private void ApplyProAngeboteDefaults()
+        {
+            _tbl.Text = "dbo.PRO_ANGEBOTE";
+            _colSku.Text = "PRO_ANG_ID";              // eindeutige Angebots-ID
+            _colName.Text = "ANGEBOTSBEZ";            // Titel / Bezeichnung
+            _colDesc.Text = "KONDITIONEN";            // Konditionentext (Memo)
+            _colUnit.Text = "WAEHRUNGS_ID";           // Platzhalter (Währung)
+            _colPrice.Text = "BRUTTOWERT";            // Wert brutto
+            _colStock.Text = "WARENWERT";             // Warenwert (Platzhalter)
+            _colCategory.Text = "PRO_ANG_STATUS_ID";  // Angebotsstatus als Kategorie
+            _status.Text = "Applied PRO_ANGEBOTE defaults. Don’t forget to Save.";
+            _status.TextColor = Colors.DarkGoldenrod;
+        }
+
         private void UpdateAuthVisibility()
         {
             var isWindows = _auth.SelectedIndex == 0;
@@ -179,24 +187,15 @@ namespace RhinoERPBridge.UI
 
         private void Save()
         {
-            var s = new DbSettings
-            {
-                Server = _server.Text?.Trim() ?? string.Empty,
-                Database = _database.Text?.Trim() ?? string.Empty,
-                AuthMode = _auth.SelectedIndex == 0 ? DbAuthMode.Windows : DbAuthMode.SqlLogin,
-                Username = _username.Text?.Trim() ?? string.Empty,
-                EncryptedPassword = SettingsService.Encrypt(_password.Text ?? string.Empty),
-                Encrypt = _encrypt.Checked ?? true,
-                TrustServerCertificate = _trust.Checked ?? true,
-                ArticlesTable = _tbl.Text?.Trim() ?? string.Empty,
-                ColSku = _colSku.Text?.Trim() ?? string.Empty,
-                ColName = _colName.Text?.Trim() ?? string.Empty,
-                ColDescription = _colDesc.Text?.Trim() ?? string.Empty,
-                ColUnit = _colUnit.Text?.Trim() ?? string.Empty,
-                ColPrice = _colPrice.Text?.Trim() ?? string.Empty,
-                ColStock = _colStock.Text?.Trim() ?? string.Empty,
-                ColCategory = _colCategory.Text?.Trim() ?? string.Empty
-            };
+            var s = SettingsService.Load();
+            s.ArticlesTable = _tbl.Text?.Trim() ?? string.Empty;
+            s.ColSku = _colSku.Text?.Trim() ?? string.Empty;
+            s.ColName = _colName.Text?.Trim() ?? string.Empty;
+            s.ColDescription = _colDesc.Text?.Trim() ?? string.Empty;
+            s.ColUnit = _colUnit.Text?.Trim() ?? string.Empty;
+            s.ColPrice = _colPrice.Text?.Trim() ?? string.Empty;
+            s.ColStock = _colStock.Text?.Trim() ?? string.Empty;
+            s.ColCategory = _colCategory.Text?.Trim() ?? string.Empty;
             SettingsService.Save(s);
             _status.Text = "Saved.";
         }

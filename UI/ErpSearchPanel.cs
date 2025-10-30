@@ -22,8 +22,10 @@ namespace RhinoERPBridge.UI
         private readonly Label _statusLabel;
         private readonly GridView _grid;
         private readonly CheckBox _showAllColumns;
+        private readonly NumericStepper _rowLimit;
         private IArticleRepository _repo;
         private readonly Button _settingsButton;
+        private readonly Button _dsnSettingsButton;
         private readonly Button _normalViewButton;
         private int? _lastContextColumnIndex;
 
@@ -37,7 +39,9 @@ namespace RhinoERPBridge.UI
             _searchButton = new Button { Text = "Search" };
             _statusLabel = new Label { Text = "Ready", TextColor = Colors.Gray };
             _settingsButton = new Button { Text = "DB Settings..." };
+            _dsnSettingsButton = new Button { Text = "DSN Settings..." };
             _showAllColumns = new CheckBox { Text = "Show all columns" };
+            _rowLimit = new NumericStepper { MinValue = 1, MaxValue = 10000, Increment = 50, Value = 100 };
             _normalViewButton = new Button { Text = "Normal view" };
 
             _grid = BuildGrid();
@@ -102,12 +106,13 @@ namespace RhinoERPBridge.UI
                 new TableRow(
                     new TableCell(_searchButton, true),
                     new TableCell(_settingsButton, true),
+                    new TableCell(_dsnSettingsButton, true),
                     new TableCell(_normalViewButton, true)
                 )
             );
             layout.AddRow(buttonsRow);
 
-            layout.AddRow(_statusLabel);
+            layout.AddRow(_statusLabel, new Label { Text = "Rows:" }, _rowLimit);
             layout.AddRow(_showAllColumns);
             layout.Add(_grid, xscale: true, yscale: true);
 
@@ -126,6 +131,7 @@ namespace RhinoERPBridge.UI
             }
 
             _settingsButton.Click += (s, e) => Rhino.UI.Panels.OpenPanel(DbSettingsPanel.PanelGuid);
+            _dsnSettingsButton.Click += (s, e) => Rhino.UI.Panels.OpenPanel(DsnSettingsPanel.PanelGuid);
             _showAllColumns.CheckedChanged += (s, e) => ApplySearch();
             _normalViewButton.Click += (s, e) => { _showAllColumns.Checked = false; ApplySearch(); };
         }
@@ -189,7 +195,7 @@ namespace RhinoERPBridge.UI
                     return;
                 }
 
-                var data = RhinoERPBridge.Data.DynamicSqlHelper.QueryTop(settings, term);
+                var data = RhinoERPBridge.Data.DynamicSqlHelper.QueryTop(settings, term, (int)_rowLimit.Value);
                 BuildColumnsForDynamic(data);
                 _grid.DataStore = data.Rows;
                 _statusLabel.Text = $"{data.Rows.Count} rows (dynamic)";
