@@ -23,6 +23,7 @@ namespace RhinoERPBridge.UI
         private readonly GridView _grid;
         private readonly CheckBox _showAllColumns;
         private readonly NumericStepper _rowLimit;
+        private readonly Button _updateButton;
         private IArticleRepository _repo;
         private readonly Button _settingsButton;
         private readonly Button _dsnSettingsButton;
@@ -42,6 +43,7 @@ namespace RhinoERPBridge.UI
             _dsnSettingsButton = new Button { Text = "DSN Settings..." };
             _showAllColumns = new CheckBox { Text = "Show all columns" };
             _rowLimit = new NumericStepper { MinValue = 1, MaxValue = 10000, Increment = 50, Value = 100 };
+            _updateButton = new Button { Text = "Update" };
             _normalViewButton = new Button { Text = "Normal view" };
 
             _grid = BuildGrid();
@@ -112,7 +114,7 @@ namespace RhinoERPBridge.UI
             );
             layout.AddRow(buttonsRow);
 
-            layout.AddRow(_statusLabel, new Label { Text = "Rows:" }, _rowLimit);
+            layout.AddRow(_statusLabel, null, new Label { Text = "Rows:" }, _rowLimit, _updateButton);
             layout.AddRow(_showAllColumns);
             layout.Add(_grid, xscale: true, yscale: true);
 
@@ -134,6 +136,7 @@ namespace RhinoERPBridge.UI
             _dsnSettingsButton.Click += (s, e) => Rhino.UI.Panels.OpenPanel(DsnSettingsPanel.PanelGuid);
             _showAllColumns.CheckedChanged += (s, e) => ApplySearch();
             _normalViewButton.Click += (s, e) => { _showAllColumns.Checked = false; ApplySearch(); };
+            _updateButton.Click += (s, e) => ApplySearch();
         }
 
         private IArticleRepository CreateRepository()

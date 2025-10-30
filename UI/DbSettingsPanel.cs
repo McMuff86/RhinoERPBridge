@@ -65,7 +65,9 @@ namespace RhinoERPBridge.UI
 
             var layout = new DynamicLayout { Spacing = new Size(6, 6), Padding = new Padding(8) };
             layout.AddSeparateRow(new Label { Text = "Articles Mapping", Font = SystemFonts.Bold() }, null, btnDsn);
-            layout.AddRow(new Label { Text = "Table" }, _tbl, _tablePresets);
+            // Table row with equal split between textbox and presets dropdown
+            var tableInputs = new TableLayout(new TableRow(new TableCell(_tbl, true), new TableCell(_tablePresets, true)));
+            layout.AddRow(new Label { Text = "Table" }, tableInputs);
             layout.AddRow(new Label { Text = "SKU" }, _colSku);
             layout.AddRow(new Label { Text = "Name" }, _colName);
             layout.AddRow(new Label { Text = "Description" }, _colDesc);
