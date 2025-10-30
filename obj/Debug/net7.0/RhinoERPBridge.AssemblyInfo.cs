@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Description of RhinoERPBridge")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+3466fdb80e1872b2c2d2fbb59acfb99ab4a27c9f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+dd3ea7ec310108dff8b3924e0405c9c9f85ba225")]
 [assembly: System.Reflection.AssemblyProductAttribute("RhinoERPBridge")]
 [assembly: System.Reflection.AssemblyTitleAttribute("RhinoERPBridge")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -173,23 +173,38 @@ namespace RhinoERPBridge.UI
                 AllowColumnReordering = true
             };
 
+            RebuildTypedColumns(grid);
+
+            return grid;
+        }
+
+        private void RebuildTypedColumns()
+        {
+            RebuildTypedColumns(_grid);
+        }
+
+        private void RebuildTypedColumns(GridView grid)
+        {
+            grid.Columns.Clear();
             grid.Columns.Add(new GridColumn { HeaderText = "SKU", DataCell = new TextBoxCell { Binding = Binding.Property<Article, string>(a => a.Sku) }, Width = 120 });
             grid.Columns.Add(new GridColumn { HeaderText = "Name", DataCell = new TextBoxCell { Binding = Binding.Property<Article, string>(a => a.Name) }, Width = 220 });
             grid.Columns.Add(new GridColumn { HeaderText = "Category", DataCell = new TextBoxCell { Binding = Binding.Property<Article, string>(a => a.Category) }, Width = 120 });
             grid.Columns.Add(new GridColumn { HeaderText = "Price", DataCell = new TextBoxCell { Binding = Binding.Property<Article, string>(a => a.Price.ToString("F2")) }, Width = 80 });
             grid.Columns.Add(new GridColumn { HeaderText = "Stock", DataCell = new TextBoxCell { Binding = Binding.Property<Article, string>(a => a.Stock.ToString()) }, Width = 70 });
-
-            return grid;
         }
 
         private void ApplySearch()
         {
             var term = _searchBox.Text ?? string.Empty;
+            // Always recreate repository to pick up latest DB Settings
+            _repo = CreateRepository();
             if (_showAllColumns.Checked == true)
             {
                 TryBindDynamic(term);
                 return;
             }
+            // Ensure typed columns are restored after dynamic mode
+            RebuildTypedColumns();
             var results = _repo.Search(term);
             _statusLabel.Text = $"{results.Count} results";
             BindArticles(results);
