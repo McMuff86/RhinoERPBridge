@@ -20,6 +20,7 @@ namespace RhinoERPBridge.UI
         private readonly TextBox _searchBox;
         private readonly Button _searchButton;
         private readonly Label _statusLabel;
+        private readonly Label _activeTableLabel;
         private readonly GridView _grid;
         private readonly CheckBox _showAllColumns;
         private readonly NumericStepper _rowLimit;
@@ -39,6 +40,7 @@ namespace RhinoERPBridge.UI
             _searchBox = new TextBox { PlaceholderText = "Search term..." };
             _searchButton = new Button { Text = "Search" };
             _statusLabel = new Label { Text = "Ready", TextColor = Colors.Gray };
+            _activeTableLabel = new Label { Text = string.Empty, TextColor = Colors.Gray };
             _settingsButton = new Button { Text = "DB Settings..." };
             _dsnSettingsButton = new Button { Text = "DSN Settings..." };
             _showAllColumns = new CheckBox { Text = "Show all columns" };
@@ -114,15 +116,14 @@ namespace RhinoERPBridge.UI
             );
             layout.AddRow(buttonsRow);
 
-            // Status + row controls on one row, appended after status (no right alignment)
-            var statusRow = new TableLayout(
-                new TableRow(
-                    new TableCell(_statusLabel, true),
-                    new TableCell(new Label { Text = "Rows:" }),
-                    new TableCell(_rowLimit),
-                    new TableCell(_updateButton)
-                )
-            );
+            // Status + active table + row controls on one line
+            var statusRow = new TableLayout(new TableRow(
+                new TableCell(_statusLabel),
+                new TableCell(_activeTableLabel, true),
+                new TableCell(new Label { Text = "Rows:" }),
+                new TableCell(_rowLimit),
+                new TableCell(_updateButton)
+            ));
             layout.AddRow(statusRow);
             layout.AddRow(_showAllColumns);
             layout.Add(_grid, xscale: true, yscale: true);
@@ -131,6 +132,7 @@ namespace RhinoERPBridge.UI
 
             // repo selection
             _repo = CreateRepository();
+            UpdateActiveTableName();
             try
             {
                 BindArticles(_repo.GetAll());
@@ -198,6 +200,7 @@ namespace RhinoERPBridge.UI
             var term = _searchBox.Text ?? string.Empty;
             // Always recreate repository to pick up latest DB Settings
             _repo = CreateRepository();
+            UpdateActiveTableName();
             if (_showAllColumns.Checked == true)
             {
                 TryBindDynamic(term);
@@ -214,6 +217,7 @@ namespace RhinoERPBridge.UI
         {
             try
             {
+                UpdateActiveTableName();
                 var settings = RhinoERPBridge.Services.SettingsService.Load();
                 if (settings == null || !settings.IsConfigured || string.IsNullOrWhiteSpace(settings.ArticlesTable))
                 {
@@ -233,6 +237,13 @@ namespace RhinoERPBridge.UI
                 _statusLabel.Text = ex.Message;
                 _statusLabel.TextColor = Colors.IndianRed;
             }
+        }
+
+        private void UpdateActiveTableName()
+        {
+            var settings = RhinoERPBridge.Services.SettingsService.Load();
+            var tbl = settings?.ArticlesTable;
+            _activeTableLabel.Text = string.IsNullOrWhiteSpace(tbl) ? string.Empty : $"Active table name: {tbl}";
         }
 
         private void BuildColumnsForDynamic(RhinoERPBridge.Data.DynamicResult data)
