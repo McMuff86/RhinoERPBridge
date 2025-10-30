@@ -114,7 +114,16 @@ namespace RhinoERPBridge.UI
             );
             layout.AddRow(buttonsRow);
 
-            layout.AddRow(_statusLabel, null, new Label { Text = "Rows:" }, _rowLimit, _updateButton);
+            // Status + row controls on one row, appended after status (no right alignment)
+            var statusRow = new TableLayout(
+                new TableRow(
+                    new TableCell(_statusLabel, true),
+                    new TableCell(new Label { Text = "Rows:" }),
+                    new TableCell(_rowLimit),
+                    new TableCell(_updateButton)
+                )
+            );
+            layout.AddRow(statusRow);
             layout.AddRow(_showAllColumns);
             layout.Add(_grid, xscale: true, yscale: true);
 
