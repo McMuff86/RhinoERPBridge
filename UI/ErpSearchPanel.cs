@@ -243,7 +243,7 @@ namespace RhinoERPBridge.UI
         {
             var settings = RhinoERPBridge.Services.SettingsService.Load();
             var tbl = settings?.ArticlesTable;
-            _activeTableLabel.Text = string.IsNullOrWhiteSpace(tbl) ? string.Empty : $"Active table name: {tbl}";
+            _activeTableLabel.Text = string.IsNullOrWhiteSpace(tbl) ? string.Empty : $"    /    Active table: {tbl}";
         }
 
         private void BuildColumnsForDynamic(RhinoERPBridge.Data.DynamicResult data)
